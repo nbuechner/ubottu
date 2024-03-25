@@ -1,0 +1,34 @@
+on: [push]
+jobs:
+  build:
+    runs-on: docker
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-22.04
+    env:
+      PIP_INDEX_URL: https://pypi.haxxors.com/simple
+      UNSHARED_SECRET: ${{ secrets.UNSHARED_SECRET }}
+      HOMESERVER_URL: ${{ secrets.HOMESERVER_URL }}
+      HOMESERVER_SECRET: ${{ secrets.HOMESERVER_SECRET }}
+      HOMESERVER_DOMAIN: ${{ secrets.HOMESERVER_DOMAIN }}
+      ADMIN_PW: ${{ secrets.ADMIN_PW }}
+      PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp ubottu/config.yaml.deploy ubottu/config.yaml
+      - run: rm -f ubottu/config.yaml.deploy
+      - run: rm -f ubottu/config.yaml.default
+      - run: sed -i "s/%%UNSHARED_SECRET%%/${UNSHARED_SECRET}/g" ubottu/config.yaml
+      - run: sed -i "s/%%HOMESERVER_URL%%/${HOMESERVER_URL}/g" ubottu/config.yaml
+      - run: sed -i "s/%%HOMESERVER_SECRET%%/${HOMESERVER_SECRET}/g" ubottu/config.yaml
+      - run: sed -i "s/%%HOMESERVER_DOMAIN%%/${HOMESERVER_DOMAIN}/g" ubottu/config.yaml
+      - run: sed -i "s/%%ADMIN_PW%%/${ADMIN_PW}/g" ubottu/config.yaml
+      - run: sed -i "s/%%PUBLIC_URL%%/${PUBLIC_URL}/g" ubottu/config.yaml
+      - run: pip install maubot
+      - run: mbc build # Build the project
+      - run: mkdir -p output # Ensure output directory exists, `-p` to prevent error if already exists
+      - run: mv *.mbp output/ubottu-latest-py3.10.mbp # Move built file to output
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ubottu-latest-py3.10.mbp.zip
+          path: output/ubottu-latest-py3.10.mbp

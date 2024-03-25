@@ -1,0 +1,16 @@
+venv
+olm
+.local
+.cmake
+.cache
+.ubottu
+.bashrc
+.python_history
+.bash_history
+*.mbp
+*.db
+*.log
+config.yaml
+plugins/*
+ubottu/maubot.db
+ubottu/config.yaml
