@@ -1,5 +1,4 @@
 import json
-import sqlite3
 import os
 import re
 import requests
@@ -77,33 +76,8 @@ class Ubottu(Plugin):
         data = await resp.json()
         #print(data)
         await evt.reply(data['employees'][0]['email'])
-  
-  async def lookup_factoid_irc(self, command_name, to_user, evt):
-      sql = "SELECT value FROM facts where name = '" + command_name + "' LIMIT 1"
-      db = self.db
-      cur = db.cursor()
-      cur.execute(sql)
-      rows = cur.fetchall()
-      row = None
-      for row in rows:
-        if row[0].startswith('<alias>'):
-          command_name = str(row[0]).replace('<alias> ', '')
-          sql = "SELECT value FROM facts where name = '" + command_name + "' LIMIT 1"
-          cur.execute(sql)
-          rows = cur.fetchall()
-          for row in rows:
-            break
-          break
-      if row is not None and row[0].startswith('<reply>'):
-        output = str(row[0]).replace('<reply> ', '')
-        if to_user:
-          await evt.respond(to_user + ': ' + output)
-        else:
-          await evt.respond(output)
-        return True
-      return False
 
-  async def lookup_factoid_matrix(self, command_name, to_user, evt):
+  async def lookup_factoid(self, command_name, to_user, evt):
       api_url = 'http://127.0.0.1:8000/factoids/api/facts/'
       url = api_url + command_name + '/?format=json'
       resp = await self.http.get(url)
@@ -143,6 +117,11 @@ class Ubottu(Plugin):
       else:
         args = full_command.strip().split(' ')[1:]
       
+      #block !tr factoid to allow translation
+      if command_name == 'tr':
+        return False
+
+
       #reload stuff
       if command_name == 'reload' and self.check_access_sender(evt.sender):
         if self.pre_start():
@@ -150,10 +129,6 @@ class Ubottu(Plugin):
         else:
           await evt.respond('Reload failed')
         return True
-
-      #block !tr factoid to allow translation
-      if command_name == 'tr':
-        return False
 
       if command_name == 'time' or command_name == 'utc':
         if command_name == 'utc':
@@ -187,11 +162,7 @@ class Ubottu(Plugin):
             return True
         return False
 
-      # check for factoids IRC
-      #if await self.lookup_factoid_irc(command_name, to_user, evt):
-      #  return True
-      # check for factoids matrix
-      if await self.lookup_factoid_matrix(command_name, to_user, evt):
+      if await self.lookup_factoid(command_name, to_user, evt):
         return True
   @classmethod
   def get_config_class(cls) -> Type[BaseProxyConfig]:
