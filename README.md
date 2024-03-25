@@ -1,7 +1,7 @@
 # Ubottu Matrix Helper Bot
 
 The bot is a plugin for [Maubot](https://github.com/maubot/maubot). Please see their documentation for [setup](https://docs.mau.fi/maubot/usage/setup/index.html) and [development](https://docs.mau.fi/maubot/dev/getting-started.html).
-See USAGE.md for supported commands.
+See [USAGE.md](https://git.buechner.me/nbuechner/ubottu/src/branch/main/USAGE.md) for supported commands.
 There is a web component written in Django that provides the API for most of the bot's features.
 The repository will be linked here after a code cleanup.
 
