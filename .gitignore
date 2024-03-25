@@ -11,6 +11,7 @@ olm
 *.db
 *.log
 config.yaml
+config.yaml.*
 plugins/*
 ubottu/maubot.db
 ubottu/config.yaml
