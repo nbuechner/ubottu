@@ -11,7 +11,7 @@ The available facts are available at [here](https://maubot.haxxors.com/factoids/
 
 **Example 1**:`!noble`
 
-**Response**: Ubuntu 24.04 (Noble Numbat) will be the 40th release of...
+**Response**: `Ubuntu 24.04 (Noble Numbat) will be the 40th release of...`
 
 **Example 2**: `!noble | Bob`
 
