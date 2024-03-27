@@ -15,15 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: cp ubottu/config.yaml.deploy ubottu/config.yaml
-      - run: rm -f ubottu/config.yaml.deploy
-      - run: rm -f ubottu/config.yaml.default
-      - run: sed -i "s/%%UNSHARED_SECRET%%/${UNSHARED_SECRET}/g" ubottu/config.yaml
-      - run: sed -i "s/%%HOMESERVER_URL%%/${HOMESERVER_URL}/g" ubottu/config.yaml
-      - run: sed -i "s/%%HOMESERVER_SECRET%%/${HOMESERVER_SECRET}/g" ubottu/config.yaml
-      - run: sed -i "s/%%HOMESERVER_DOMAIN%%/${HOMESERVER_DOMAIN}/g" ubottu/config.yaml
-      - run: sed -i "s/%%ADMIN_PW%%/${ADMIN_PW}/g" ubottu/config.yaml
-      - run: sed -i "s/%%PUBLIC_URL%%/${PUBLIC_URL}/g" ubottu/config.yaml
       - run: pip install maubot
       - run: mbc build # Build the project
       - run: mkdir -p output # Ensure output directory exists, `-p` to prevent error if already exists

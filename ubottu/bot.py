@@ -28,34 +28,11 @@ class Ubottu(Plugin):
     return safe_string
 
   async def pre_start(self) -> None:
-    #if await self.get_ubottu_db('https://ubottu.com/ubuntu3.db'):
-    #  self.db = sqlite3.connect("/home/maubot/.ubottu/ubuntu3.db")
-    #else:
-    #  return False
     return True
 
   async def start(self) -> None:
     self.config.load_and_update()
     self.flood_protection = FloodProtection()
-    
-  async def get_ubottu_db(self, url):
-    """Load a file from a URL into an in-memory filesystem."""
-    # Create a filename if required
-    u = urlparse(url)
-    fn = "/home/maubot/.ubottu/" + os.path.basename(u.path)
-    #if os.path.isfile(fn):
-    #  return fn
-    requests.packages.urllib3.util.connection.HAS_IPV6 = False
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()  # Checks if the request was successful
-        # Open the local file in binary write mode
-        with open(fn, 'wb+') as f:
-            for chunk in r.iter_content(chunk_size=8192): 
-                # If you have a chunk of data, write it to the file
-                if chunk:
-                    f.write(chunk)
-        f.close()
-    return fn
 
   def check_access(self, sender, room_id):
       if sender in self.config["whitelist"] and room_id in self.config["rooms"]:
@@ -76,6 +53,14 @@ class Ubottu(Plugin):
         data = await resp.json()
         #print(data)
         await evt.reply(data['employees'][0]['email'])
+
+  async def lookup_launchpad_bug(self, bug_id):
+    url = 'http://127.0.0.1:8000/bugtracker/api/bugtracker/launchpad/' + str(bug_id) + '/'
+    resp = await self.http.get(url)
+    if resp.status == 200:
+      data = await resp.json()
+      return data
+    return False
 
   async def lookup_factoid(self, command_name, to_user, evt):
       api_url = 'http://127.0.0.1:8000/factoids/api/facts/'
@@ -101,9 +86,27 @@ class Ubottu(Plugin):
             await evt.respond(value)
           return True
       return False
+  
+  @command.passive("bug #?(\d+)|https?:\/\/bugs\.launchpad\.net\/.+/(\d+)")
+  async def command_bug(self, evt: MessageEvent, match: Tuple[str]) -> None:
+    if match:
+        if match[1]:
+          bug_id = match[1]
+        if match[2]:
+          bug_id = match[2] 
+    if self.flood_protection.flood_check_bug(bug_id) and self.flood_protection.flood_check(evt.sender):
+        data = await self.lookup_launchpad_bug(bug_id)
+        if data:
+            if data['package'] != '':
+              package = ' in ' + '[' + data['package'] + '](' + data['target_link'] + ')'           
+            msg = f"Launchpad Bug [#{data['id']}]({data['link']}){package} \"{data['title']}\" [{data['importance']}, {data['status']}]"
+            await evt.respond(msg)
+            return True
+    return False
+
 
   @command.passive("^!(.+)$")
-  async def command(self, evt: MessageEvent, match: Tuple[str]) -> None:
+  async def command_e(self, evt: MessageEvent, match: Tuple[str]) -> None:
     # allow all rooms and users, only enable flood protection
     #if self.check_access(evt.sender, evt.room_id):
     if self.flood_protection.flood_check(evt.sender):
@@ -120,8 +123,7 @@ class Ubottu(Plugin):
       #block !tr factoid to allow translation
       if command_name == 'tr':
         return False
-
-
+        
       #reload stuff
       if command_name == 'reload' and self.check_access_sender(evt.sender):
         if self.pre_start():
@@ -141,6 +143,19 @@ class Ubottu(Plugin):
           data = await resp.json()
           if data:
             await evt.respond('The current time in ' + data['location'] + ' is ' + data['local_time'])
+
+      if command_name == 'bug':
+        if len(args) == 1:
+          package = ''
+          bug_id = int(args[0])
+          data = await self.lookup_launchpad_bug(bug_id)
+          if data:
+            if data['package'] != '':
+              package = ' in ' + '[' + data['package'] + '](' + data['target_link'] + ')'           
+            msg = f"Launchpad Bug [#{data['id']}]({data['link']}){package} \"{data['title']}\" [{data['importance']}, {data['status']}]"
+            await evt.respond(msg)
+            
+        return False
 
       #!package lookup command
       if command_name == 'package' or command_name == 'depends':

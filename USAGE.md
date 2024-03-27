@@ -14,6 +14,15 @@ The available facts are available at [here](https://maubot.haxxors.com/factoids/
 **Example 2**: `!noble | Bob`
 **Response**: Bob: Ubuntu 24.04 (Noble Numbat) will be the 40th...
 
+## Launchpad Bugs
+
+The bot reacts to URLs from bugs.launchpad.net and to "bug [#]bugnumber" in messages.
+
+**Example 1**: got this issue right now https://bugs.launchpad.net/snapd/+bug/2052688 on my computer
+**Example 2**: i am affected by bug 2052688 on my computer
+**Example 3**: i am affected by bug #2052688 on my computer
+**Response**: Launchpad Bug #2052688 in snapd "run-snapd-ns-snapd\x2ddesktop [...] long time when system enter in shutdown" [Undecided, New]
+
 ## Time Commands
 
 ### `!time <city>`
