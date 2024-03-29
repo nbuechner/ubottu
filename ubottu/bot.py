@@ -87,7 +87,7 @@ class Ubottu(Plugin):
           return True
       return False
   
-  @command.passive("bug #?(\d+)|https?:\/\/bugs\.launchpad\.net\/.+/(\d+)")
+  @command.passive("bug #?(\d+)|https?:\/\/bugs\.launchpad\.net\/[^\d]*(\d+)")
   async def command_bug(self, evt: MessageEvent, match: Tuple[str]) -> None:
     if match:
         if match[1]:
