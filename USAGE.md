@@ -5,7 +5,7 @@ This documentation outlines the usage of commands supported by the bot. The bot 
 ## Factoids / Facts
 
 This is a dynamic list of replies.
-The available facts are available at [here](https://maubot.haxxors.com/factoids/). You can make [suggestions](https://cloud.haxxors.com/s/Yr7GEfDazHSC8gH) for additional facts.
+The available facts are available at [here](https://maubot.haxxors.com/factoids/). You can make [suggestions](https://cloud.haxxors.com/s/CqfdcDAQWEWE8R3) for additional facts.
 
 **Usage**: `!fact_name [| username])`
 
