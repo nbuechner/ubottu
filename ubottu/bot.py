@@ -105,8 +105,9 @@ class Ubottu(Plugin):
     if self.flood_protection.flood_check_bug(bug_id) and self.flood_protection.flood_check(evt.sender):
         data = await self.lookup_launchpad_bug(bug_id)
         if data:
+            package = ''
             if data['package'] != '':
-              package = ' in ' + '[' + data['package'] + '](' + data['target_link'] + ')'           
+              package = ' in ' + data['package']
             msg = f"Launchpad Bug [#{data['id']}]({data['link']}){package} \"{data['title']}\" [{data['importance']}, {data['status']}]"
             await evt.respond(msg)
             return True
