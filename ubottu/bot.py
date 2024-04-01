@@ -62,6 +62,14 @@ class Ubottu(Plugin):
       return data
     return False
 
+  async def lookup_github_bug(self, owner, project, bug_id):
+    url = 'http://127.0.0.1:8000/bugtracker/api/bugtracker/github/' + owner + '/' + project + '/' + str(bug_id) + '/'
+    resp = await self.http.get(url)
+    if resp.status == 200:
+      data = await resp.json()
+      return data
+    return False
+
   async def lookup_factoid(self, command_name, to_user, evt):
       api_url = 'http://127.0.0.1:8000/factoids/api/facts/'
       url = api_url + command_name + '/?format=json'
@@ -88,7 +96,7 @@ class Ubottu(Plugin):
       return False
   
   @command.passive("bug #?(\d+)|https?:\/\/bugs\.launchpad\.net\/[^\d]*(\d+)")
-  async def command_bug(self, evt: MessageEvent, match: Tuple[str]) -> None:
+  async def command_launchpad_bug(self, evt: MessageEvent, match: Tuple[str]) -> None:
     if match:
         if match[1]:
           bug_id = match[1]
@@ -104,6 +112,21 @@ class Ubottu(Plugin):
             return True
     return False
 
+  @command.passive("https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/issues\/(\d+)")
+  async def command_github_bug(self, evt: MessageEvent, match: Tuple[str]) -> None:
+    owner = match[1]
+    project  = match[2]
+    issue_id = match[3]
+  
+    if self.flood_protection.flood_check_bug(issue_id) and self.flood_protection.flood_check(evt.sender):
+        data = await self.lookup_github_bug(owner, project, issue_id)
+        if data:
+            issue_url = f"https://github.com/{data['project']}/issues/{data['id']}"
+            project_url = f"https://github.com/{data['project']}"
+            msg = f"GitHub Issue [#{data['id']}]({issue_url}) in [{data['project']}]({project_url}) \"{data['description']}\" [{data['state']}]"
+            await evt.respond(msg)
+            return True
+    return False
 
   @command.passive("^!(.+)$")
   async def command_e(self, evt: MessageEvent, match: Tuple[str]) -> None:
