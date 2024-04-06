@@ -17,6 +17,19 @@ The available facts are available at [here](https://maubot.haxxors.com/factoids/
 
 **Response**: `Bob: Ubuntu 24.04 (Noble Numbat) will be the 40th...`
 
+### Placeholders
+
+Facts can include placeholders. Currently supported are:
+ - Members of Launchpad groups:
+ - List of moderators and admins in a room
+
+ Both can be combined. If a group includes other teams there is no recursion.
+
+ **Example**: `We need help here Defenders! {launchpad_group.matrix-defenders} {moderators}`
+
+ **Response**: `We need help here Defenders! [matrix-defenders-member1} [matrix-defenders-member2] [...] [room-admin1] [room-moderator1]`
+ 
+
 ## Launchpad Bugs
 
 The bot reacts to URLs from bugs.launchpad.net and to "bug [#]bugnumber" in messages.
