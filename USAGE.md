@@ -42,6 +42,12 @@ The bot reacts to URLs from bugs.launchpad.net and to "bug [#]bugnumber" in mess
 
 **Response**: `Launchpad Bug #2052688 in snapd "run-snapd-ns-snapd\x2ddesktop [...] " [Undecided, New]`
 
+
+## RSS feeds    
+
+The bot runs a [RSS plugin](https://github.com/maubot/rss) for Maubot. All moderators and admins in a room can use it.
+
+
 ## Time Commands
 
 ### `!time <city>`
