@@ -152,7 +152,10 @@ class Ubottu(Plugin):
           if "{moderators}" in value:
             moderators = await self.get_room_mods_and_admins(evt)
             if isinstance(moderators, list) and len(moderators) > 0:
-              value = value.replace("{moderators}", "https://matrix.to/#/" + "https://matrix.to/#/".join(moderators))
+              m_str = ''
+              for m in moderators:
+                m_str = m_str + 'https://matrix.to/#/' + m + ' '
+              value = value.replace("{moderators}", m_str)  
             else:
               return False
           if to_user:
