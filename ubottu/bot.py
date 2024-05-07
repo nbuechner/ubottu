@@ -8,6 +8,7 @@ from typing import Type, Tuple
 from mautrix.util.config import BaseProxyConfig, ConfigUpdateHelper
 from maubot import Plugin, MessageEvent
 from maubot.handlers import command
+import mautrix.util
 from mautrix.types import (
     EventType,
     MemberStateEventContent,
@@ -69,7 +70,7 @@ class Ubottu(Plugin):
         # Fetch the state of the room, focusing on power levels
         levels = await self.get_power_levels(evt.room_id)
         for user_id, level in levels.users.items():
-          if level > 50:
+          if level >= 50:
             high_level_user_ids.append(user_id)
           else:
             self.log.info("No power levels found in {evt.room_id}")
@@ -142,6 +143,7 @@ class Ubottu(Plugin):
           name = data['name']
           value = data['value']
           ftype = data['ftype']
+          user_ids = data['user_ids']
           if ftype == 'ALIAS':
             command_name = value
             url = api_url + command_name + '/?format=json'
@@ -149,19 +151,57 @@ class Ubottu(Plugin):
             if resp and resp.status == 200:
               data = await resp.json()
               value = data['value']
-          if "{moderators}" in value:
+
+          content = {}
+          content['m.mentions'] = {}
+          moderators = []
+          mentions = 0
+          m_str = ''
+          m_str_html = ''
+          user_ids = []
+          value = data['value']
+          formatted_value = value
+
+          if '.mentions' in value:
+            value = value.replace('.mentions', '')
+            mentions = 1
+            
+          #find matrix user ids in message
+          user_id_re = '@[\w.-]+:[a-zA-Z\d.-]+\.[a-zA-Z]{2,}'
+          user_ids = re.findall(user_id_re, value)
+          if len(user_ids) > 0:
+            for user_id in user_ids:
+              formatted_value = formatted_value.replace(user_id, '<a href="https://matrix.to/#/' + user_id + '">' + user_id + '</a>')
+
+
+          #find room moderators and add to mentions if needed
+          if '{moderators}' in value:
             moderators = await self.get_room_mods_and_admins(evt)
-            if isinstance(moderators, list) and len(moderators) > 0:
-              m_str = ''
+            if mentions == 1:
+              value = value.replace('{moderators}', '')
+              
+            formatted_value = value
+
+            if mentions == 0:
               for m in moderators:
-                m_str = m_str + 'https://matrix.to/#/' + m + ' '
-              value = value.replace("{moderators}", m_str)  
-            else:
-              return False
+                m_str_html = "<a href='https://matrix.to/#/'>" + m + '</a> ' + m_str_html
+                m_str = m_str + ' ' + m
+              value = value.replace('{moderators}', m_str)
+              formatted_value = formatted_value.replace('{moderators}', m_str_html)
+
+          value = re.sub(' +', ' ', value)
+
+          content['m.mentions']['user_ids'] = list(set(list(moderators) + list(data['user_ids'])))
+          self.log.info(content['m.mentions']['user_ids'])
+          content['formatted_body'] = mautrix.util.markdown.render(formatted_value, allow_html=True)
+          content['msgtype'] = "m.text"
+          content['format'] = 'org.matrix.custom.html'
+          content['body'] = mautrix.util.markdown.render(value, allow_html=True)
           if to_user:
-            await evt.respond(to_user + ': ' + value)
-          else:
-            await evt.respond(value)
+            content['body'] = to_user + ': ' + content['body']
+            content['formatted_body'] = to_user + content['formatted_body']
+          
+          await evt.respond(content)
           return True
       return False
   
