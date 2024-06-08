@@ -152,6 +152,11 @@ class Ubottu(Plugin):
               data = await resp.json()
               value = data['value']
 
+          # if factoid is room specific check and only reply in this room
+          room = data['room']
+          if room is not None and room != evt.room_id:
+            return False
+        
           content = {}
           content['m.mentions'] = {}
           moderators = []
@@ -172,7 +177,6 @@ class Ubottu(Plugin):
           if len(user_ids) > 0:
             for user_id in user_ids:
               formatted_value = formatted_value.replace(user_id, '<a href="https://matrix.to/#/' + user_id + '">' + user_id + '</a>')
-
 
           #find room moderators and add to mentions if needed
           if '{moderators}' in value:
@@ -196,7 +200,7 @@ class Ubottu(Plugin):
           content['formatted_body'] = mautrix.util.markdown.render(formatted_value, allow_html=True)
           content['msgtype'] = "m.text"
           content['format'] = 'org.matrix.custom.html'
-          content['body'] = mautrix.util.markdown.render(value, allow_html=True)
+          content['body'] = value
           if to_user:
             content['body'] = to_user + ': ' + content['body']
             content['formatted_body'] = to_user + content['formatted_body']
