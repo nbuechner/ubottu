@@ -282,7 +282,7 @@ class Ubottu(Plugin):
           if data:
             await evt.respond('The current time in ' + data['location'] + ' is ' + data['local_time'])
 
-      if command_name == 'bug':
+      if command_name == 'lpbug' or command_name == 'lp':
         if len(args) == 1:
           package = ''
           bug_id = int(args[0])
@@ -295,7 +295,7 @@ class Ubottu(Plugin):
             
         return False
 
-      #!package lookup command
+      #package lookup command
       if command_name == 'package' or command_name == 'depends':
         apt = Apt()
         if len(args) == 0:
