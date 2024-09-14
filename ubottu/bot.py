@@ -272,7 +272,7 @@ class Ubottu(Plugin):
 
       if command_name == 'time' or command_name == 'utc':
         if command_name == 'utc':
-          city = 'London'
+          city = 'UTC'
         else:
           city = " ".join(args)
         api_url = 'http://127.0.0.1:8000/factoids/api/citytime/' + city + '/?format=json'
@@ -280,7 +280,10 @@ class Ubottu(Plugin):
         if resp and resp.status == 200:
           data = await resp.json()
           if data:
-            await evt.respond('The current time in ' + data['location'] + ' is ' + data['local_time'])
+            if city == 'UTC':
+              await evt.respond('The current UTC time is ' + data['local_time'])
+            else:
+              await evt.respond('The current time in ' + data['location'] + ' is ' + data['local_time'] + ' ' + data['utc_offset'])
 
       if command_name == 'lpbug' or command_name == 'lp':
         if len(args) == 1:
