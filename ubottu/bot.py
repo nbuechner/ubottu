@@ -215,7 +215,9 @@ class Ubottu(Plugin):
         if match[1]:
           bug_id = match[1]
         if match[2]:
-          bug_id = match[2] 
+          bug_id = match[2]
+    if bug_id < 1000:
+      return False
     if self.flood_protection.flood_check_bug(bug_id) and self.flood_protection.flood_check(evt.sender):
         data = await self.lookup_launchpad_bug(bug_id)
         if data:
