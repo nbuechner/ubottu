@@ -310,7 +310,7 @@ class Ubottu(Plugin):
             await evt.respond(apt.info(args[0], 'noble', False))
           return True
         if len(args) == 2:
-          if args[1] in ['jammy', 'noble', 'mantic', 'focal']:
+          if args[1] in ['jammy', 'noble', 'oracular', 'focal', 'plucky']:
             if command_name == 'depends':
               await evt.respond(apt.info(args[0], args[1], False))
             else:
