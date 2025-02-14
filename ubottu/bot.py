@@ -209,7 +209,7 @@ class Ubottu(Plugin):
           return True
       return False
   
-  @command.passive("bug #?(\d+)|https?:\/\/bugs\.launchpad\.net\/[^\d]*(\d+)")
+  @command.passive("LP.? #?(\d+)|bug #?(\d+)|https?:\/\/bugs\.launchpad\.net\/[^\d]*(\d+)")
   async def command_launchpad_bug(self, evt: MessageEvent, match: Tuple[str]) -> None:
     if match:
         if match[1]:
